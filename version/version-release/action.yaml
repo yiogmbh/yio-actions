@@ -1,0 +1,46 @@
+name: Create release
+description: Creates a release based on the version info
+# Schema: https://json.schemastore.org/github-action.json
+inputs:
+  release_name:
+    description: "The name of the release"
+    default: "${{ github.repository }} - v${{ inputs.version }}"
+    required: false
+  version:
+    description: "A version identifier (defaults to 0.0.0)"
+    required: true
+  commit_sha:
+    description: "The commit SHA of the current commit"
+    required: false
+    default: "${{ env.GITHUB_SHA }}"
+  run_id:
+    description: "The run ID of the current run"
+    required: false
+    default: "${{ github.run_id }}"
+  run_number:
+    description: "The run NUMBER of the current run"
+    required: false
+    default: "${{ github.run_number }}"
+  tag:
+    description: "The tag of the current version"
+    required: true
+  is_prerelease:
+    description: "Is the version a prerelease version?"
+    required: false
+    default: "true"
+  is_release:
+    description: "Is the version a release version?"
+    required: false
+    default: "false"
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Create Release
+      id: "create_release"
+      uses: akkuman/gitea-release-action@v1
+      with:
+        name: ${{ inputs.release_name }}
+        tag_name: ${{ inputs.tag }}
+        target_commitish: ${{ inputs.commit_sha }}
+        prerelease: ${{ inputs.is_prerelease }}

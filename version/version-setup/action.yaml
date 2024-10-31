@@ -1,0 +1,13 @@
+name: Install python-semantic-release
+description: Setups up python-semantic-release
+# Schema: https://json.schemastore.org/github-action.json
+runs:
+  using: 'composite'
+  steps:
+    - name: Install python-semantic-release
+      shell: bash
+      run: |
+        pipx install python-semantic-release \
+          && pipx ensurepath \
+          && echo "$HOME/.local/bin" >> $GITHUB_PATH \
+          && echo "🐍 Installed python-semantic-release"

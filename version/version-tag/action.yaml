@@ -1,0 +1,33 @@
+name: Tag version info
+description: Creates a tag with version info
+# Schema: https://json.schemastore.org/github-action.json
+inputs:
+  version:
+    description: "A version identifier (defaults to 0.0.0)"
+    required: true
+  commit_sha:
+    description: "The commit SHA of the current commit"
+    required: false
+    default: "${{ env.GITHUB_SHA }}"
+  run_id:
+    description: "The run ID of the current run"
+    required: false
+    default: "${{ github.run_id }}"
+  run_number:
+    description: "The run NUMBER of the current run"
+    required: false
+    default: "${{ github.run_number }}"
+  tag:
+    description: "The tag of the current version"
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: rickstaa/action-create-tag@v1
+      id: "tag_create"
+      with:
+        tag: "${{ inputs.tag }}"#
+        force_push_tag: true
+        tag_exists_error: false
+        message: "Version ${{ inputs.version }} (Run: ${{inputs.run_number}}, Id: ${{ inputs.run_id }})"

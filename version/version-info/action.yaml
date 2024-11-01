@@ -4,7 +4,14 @@ description: Determines version info based on git history and properties (e.g. C
 outputs:
   version:
     value: ${{ steps.gather-version-info.outputs.version }}
-    description: "A version identifier (defaults to 0.0.0)"
+    description: "A version identifier (defaults to 0.0.0; can include prerelease)"
+
+  pre_release_label:
+    value: ${{ steps.gather-version-info.outputs.pre_release_label }}
+    description: "The pre-release label (if any)"
+  pre_release_number:
+    value: ${{ steps.gather-version-info.outputs.pre_release_number }}
+    description: "The pre-release number (if any)"
 
   commit_sha:
     value: ${{ steps.gather-version-info.outputs.commit_sha }}
@@ -35,6 +42,7 @@ runs:
         echo " 🔖 Determining version based on git history and properties"
         export detected_version=$(dotnet-gitversion | jq -r ."SemVer")
         export pre_release_number=$(dotnet-gitversion | jq -r '."PreReleaseNumber" | select( . != null )')
+        export pre_release_label=$(dotnet-gitversion | jq -r '."PreReleaseLabel" | select( . != null )')
 
         # informational purpose
         echo "gitversion=$(dotnet-gitversion | jq --raw-output -c .)" >> $GITHUB_OUTPUT
@@ -42,6 +50,8 @@ runs:
         if [[ -z "$pre_release_number" ]]; then
           echo "is_prerelease=false" >> $GITHUB_OUTPUT
           echo "is_release=true" >> $GITHUB_OUTPUT
+          echo "pre_release_label=" >> $GITHUB_OUTPUT
+          echo "pre_release_number=" >> $GITHUB_OUTPUT
         else
           echo "is_prerelease=true" >> $GITHUB_OUTPUT
           echo "is_release=false" >> $GITHUB_OUTPUT
@@ -65,13 +75,11 @@ runs:
 
         echo "---- 📦 Summary ----"
         echo " 🏷 Version:     ${{ steps.gather-version-info.outputs.version }}"
-        echo " 🔖 Commit SHA: ${{ env.GITHUB_SHA }}"
+        echo " 🔖 Commit SHA:  ${{ env.GITHUB_SHA }}"
         echo " 📷 Run Id:      ${{ github.run_id }}"
         echo " 📷 Run Number:  ${{ github.run_number }}"
         if [ "${{ steps.gather-version-info.outputs.is_prerelease }}" == "false" ]; then
           echo " 🚀 Type: Release"
-          echo "is_release=true" >> $GITHUB_OUTPUT
         else
           echo " ⚠️ Type: Prerelease"
-          echo "is_release=false" >> $GITHUB_OUTPUT
         fi

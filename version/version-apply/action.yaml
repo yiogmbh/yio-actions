@@ -1,0 +1,49 @@
+name: Applies version info
+description: Applies the given version info using bump-my-version
+# Schema: https://json.schemastore.org/github-action.json
+inputs:
+  version:
+    description: "A version identifier (e.g. 1.5.0)"
+    required: true
+  pre_release_label:
+    description: "The pre-release label (if any)"
+  pre_release_number:
+    description: "The pre-release number (if any)"
+  commit_sha:
+    description: "The commit SHA of the current commit"
+    required: true
+  run_id:
+    description: "The run ID of the current run"
+    required: true
+  run_number:
+    description: "The run NUMBER of the current run"
+    required: true
+  is_prerelease:
+    description: "Is the version a prerelease version?"
+    required: true
+  is_release:
+    description: "Is the version a release version?"
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Apply Version info
+      id: apply-version-info
+      shell: bash
+      run: |
+        # set all inputs as environment variables
+        export version=${{ inputs.version }}
+        export pre_release_label=${{ inputs.pre_release_label }}
+
+        export commit_sha=${{ inputs.commit_sha }}
+        
+        export pre_release_number=${{ inputs.pre_release_number }}
+        export run_id=${{ inputs.run_id }}
+        
+        export run_number=${{ inputs.run_number }}
+        
+        bump-my-version replace \
+          --new-version "${{ inputs.version }}" \
+          --allow-dirty --verbose
+        

@@ -1,0 +1,25 @@
+name: hatch format
+description: Runs hatch format commands
+# Schema: https://json.schemastore.org/github-action.json
+
+inputs:
+  format:
+    description: "Check format using hatch if true (default=true)"
+    required: false
+    default: 'true'
+  lint:
+    description: "Check lint using hatch if true (default=true)"
+    required: false
+    default: 'true'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: format
+      if: ${{ inputs.format == 'true' }}
+      shell: bash
+      run: hatch fmt -f --check
+    - name: lint
+      if: ${{ inputs.lint == 'true' }}
+      shell: bash
+      run: hatch fmt -l --check

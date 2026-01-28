@@ -33,7 +33,7 @@ runs:
       if: ${{ inputs.dry_run == 'true' }}
       shell: bash
       run: |
-        echo " --- DRY RUN ONLY ---
+        echo " --- DRY RUN ONLY ---"
         uv publish \
           --publish-url ${{ inputs.upload_url }} \
           --check-url ${{ inputs.registry_url }} \

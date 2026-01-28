@@ -1,0 +1,57 @@
+name: Upload distributions using uv (legacy)
+description: Uploads given dist files using `uv publish` (legacy)
+# Schema: https://json.schemastore.org/github-action.json
+
+inputs:
+  # Define the required input parameters for the action
+  dist_files:
+    description: "Distribution files to upload (e.g. 'dist/*')"
+    required: true
+    default: "dist/*"
+  upload_url:
+    description: "URL for the upload server"
+    required: true
+  registry_url:
+    description: "URL for the registry to upload to"
+    required: true
+  registry_username:
+    description: "Username for the registry to upload to"
+    required: true
+  registry_password:
+    description: "Password for the registry to upload to"
+    required: true
+  dry_run:
+    description: "If true, perform a dry run without actually uploading"
+    required: false
+    default: "true"
+
+runs:
+  using: 'composite'
+  steps:
+    - name: upload (dry run)
+      if: ${{ inputs.dry_run == 'true' }}
+      shell: bash
+      run: |
+        token_line=$(uvx --with requests python -c 'import requests, sys; print(requests.post("https://pypi.yio.at/login", headers={"Content-Type": "application/x-www-form-urlencoded"}, data={"username": sys.argv[1], "password": sys.argv[2]}).text)' \
+          "${{ inputs.registry_username }}" "${{ inputs.registry_password }}" | grep 'extra-index-url = .*')
+        registry_password=$(uvx python -c 'import sys; print(sys.argv[1].removeprefix("extra-index-url = https://").removesuffix("@pypi.yio.at/simple").split(":", maxsplit=1)[1])' "$token_line")
+        
+        echo "🔑 Successfully logged into ${{ inputs.login_url}} (as ${{ inputs.registry_username }})."
+        
+        uv publish \
+          --publish-url ${{ inputs.upload_url }} \
+          --check-url ${{ inputs.registry_url }} \
+          --username ${{ inputs.registry_username }} \
+          --password "${registry_password}" \
+          --dry-run \
+          ${{ inputs.dist_files }}
+    - name: upload
+      if: ${{ inputs.dry_run != 'true' }}
+      shell: bash
+      run: |
+        uv publish \
+          --publish-url ${{ inputs.upload_url }} \
+          --check-url ${{ inputs.registry_url }} \
+          --username ${{ inputs.registry_username }} \
+          --password "${registry_password}" \
+          ${{ inputs.dist_files }}

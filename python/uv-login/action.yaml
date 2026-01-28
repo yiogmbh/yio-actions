@@ -19,18 +19,8 @@ runs:
   steps:
     - name: Login to ${{ inputs.registry_url }}
       id: login
-      shell: bash
-      run: |
-        export FQDN="$(echo "${{ inputs.registry_url }}" | urlsplit netloc)"
-        export PROT="$(echo "${{ inputs.registry_url }}" | urlsplit scheme)"
+      run: |        
+        echo "${{ inputs.registry_password }}" \
+          | uv auth login "${{ inputs.registry_url }}" --username ${{ inputs.registry_username }} --password - 
 
-        echo "${{ inputs.registry_password }}" | keyring set "$FQDN" "${{ inputs.registry_username }}"
-
-        mkdir -p "$HOME/.config/uv"
-        export EXTRA_INDEX_URL="${PROT}://${{ inputs.registry_username }}@${FQDN}"
-        cat "$HOME/.config/uv/uv.toml" 2>/dev/null \
-          | dasel put -r toml -t string -v "${EXTRA_INDEX_URL}" 'extra-index-url.[]' \
-          > "$HOME/.config/uv/uv.toml"
-
-    - shell: bash
-      run: echo "🔑 Successfully logged into ${{ inputs.registry_url}} (as ${{ inputs.registry_username }})."
+    - run: echo "🔑 Successfully logged into ${{ inputs.registry_url}} (as ${{ inputs.registry_username }})."

@@ -1,0 +1,40 @@
+name: Install uv with keyring
+description: Setups uv with keyring
+# Schema: https://json.schemastore.org/github-action.json
+runs:
+  using: 'composite'
+  steps:
+    - name: Install uv with keyring
+      shell: bash
+      run: |
+        pipx install keyring \
+          && pipx inject keyring keyrings.alt \
+          && pipx install uv \
+          && pipx ensurepath \
+          && echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+    - name: Install dasel
+      shell: bash
+      run: |
+        curl -sSLf "$(curl -sSLf https://api.github.com/repos/tomwright/dasel/releases/latest \
+          | grep browser_download_url \
+          | grep linux_amd64 \
+          | grep -v .gz | cut -d\" -f 4)" -L -o dasel && chmod +x dasel \
+          && mv ./dasel $HOME/.local/bin/dasel
+
+    - name: Setup keyring
+      shell: bash
+      run: |
+        mkdir -p $HOME/.config/python_keyring
+        printf "[backend]\ndefault-keyring=keyrings.alt.file.PlaintextKeyring\n" \
+            > $HOME/.config/python_keyring/keyringrc.cfg
+        cat $HOME/.config/python_keyring/keyringrc.cfg
+        keyring diagnose
+
+    - name: Setup uv
+      shell: bash
+      run: |
+        mkdir -p "$HOME/.config/uv"
+        cat "$HOME/.config/uv/uv.toml" 2>/dev/null \
+          | dasel put -r toml -t string -v 'subprocess' 'keyring-provider' \
+          > "$HOME/.config/uv/uv.toml"

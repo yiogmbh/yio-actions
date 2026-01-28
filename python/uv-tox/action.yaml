@@ -1,0 +1,21 @@
+name: Run tox with uv
+description: Runs a given tox environment using `uv run`
+# Schema: https://json.schemastore.org/github-action.json
+
+inputs:
+  # Define the required input parameters for the action
+  dependency_group:
+    description: "Dependency group to run tox"
+    required: true
+    default: "tox"
+  environment:
+    description: "Tox environment to execute"
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Run tox
+      shell: bash
+      run: |
+        uv run --only-group=${{ inputs.dependency_group }} tox -e ${{ inputs.environment }}

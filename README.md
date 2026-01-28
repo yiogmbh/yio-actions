@@ -7,6 +7,17 @@ This repository contains several templates that might be useful to create build 
 
 ## Actions
 
+### python
+
+#### uv-xxx
+
+A bunch of useful actions to deal with uv as python package manager
+
+- `uv-build`: Build the given project/package
+- `uv-login`: Use the uv cli to login to private package registries
+- `uv-publish`: Use uv to publish a package to private registries
+- `uv-publish-legacy`: legacy version
+- `uv-tox`: Use uv and tox to run tests, linters ...
 
 ### version
 
@@ -18,7 +29,8 @@ A bunch of composite actions to handle versioning based on
 
   Outputs
 
-
+- `version-tag`: Can create a tag within the repository based on given version inputs.
+- `version-release`: Creates a release within the repository (including tag).
 
 - `version-bump`: Bumps the version based on the given input.
 

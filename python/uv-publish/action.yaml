@@ -24,6 +24,7 @@ inputs:
     description: "If true, perform a dry run without actually uploading"
     required: false
     default: "true"
+    type: "boolean"
 
 runs:
   using: 'composite'
@@ -32,6 +33,7 @@ runs:
       if: ${{ inputs.dry_run == 'true' }}
       shell: bash
       run: |
+        echo " --- DRY RUN ONLY ---
         uv publish \
           --publish-url ${{ inputs.upload_url }} \
           --check-url ${{ inputs.registry_url }} \

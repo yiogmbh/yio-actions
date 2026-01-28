@@ -24,6 +24,7 @@ inputs:
     description: "If true, perform a dry run without actually uploading"
     required: false
     default: "true"
+    type: "boolean"
 
 runs:
   using: 'composite'
@@ -38,6 +39,7 @@ runs:
         
         echo "🔑 Successfully logged into ${{ inputs.login_url}} (as ${{ inputs.registry_username }})."
         
+        echo " --- DRY RUN ONLY ---
         uv publish \
           --publish-url ${{ inputs.upload_url }} \
           --check-url ${{ inputs.registry_url }} \
@@ -49,6 +51,12 @@ runs:
       if: ${{ inputs.dry_run != 'true' }}
       shell: bash
       run: |
+        token_line=$(uvx --with requests python -c 'import requests, sys; print(requests.post("https://pypi.yio.at/login", headers={"Content-Type": "application/x-www-form-urlencoded"}, data={"username": sys.argv[1], "password": sys.argv[2]}).text)' \
+          "${{ inputs.registry_username }}" "${{ inputs.registry_password }}" | grep 'extra-index-url = .*')
+        registry_password=$(uvx python -c 'import sys; print(sys.argv[1].removeprefix("extra-index-url = https://").removesuffix("@pypi.yio.at/simple").split(":", maxsplit=1)[1])' "$token_line")
+        
+        echo "🔑 Successfully logged into ${{ inputs.login_url}} (as ${{ inputs.registry_username }})."
+       
         uv publish \
           --publish-url ${{ inputs.upload_url }} \
           --check-url ${{ inputs.registry_url }} \

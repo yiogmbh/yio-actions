@@ -30,7 +30,7 @@ runs:
   using: 'composite'
   steps:
     - name: upload (dry run)
-      if: ${{ inputs.dry_run == 'true'
+      if: ${{ inputs.dry_run == 'true' }}
       shell: bash
       run: |
         echo " --- DRY RUN ONLY --- value( ${{ inputs.dry_run }} ) condition( ${{ inputs.dry_run == 'true'}} )"
@@ -45,6 +45,7 @@ runs:
       if: ${{ inputs.dry_run != 'true' }}
       shell: bash
       run: |
+        echo " --- Real RUN --- value( ${{ inputs.dry_run }} ) condition( ${{ inputs.dry_run == 'true'}} )"
         uv publish \
           --publish-url ${{ inputs.upload_url }} \
           --check-url ${{ inputs.registry_url }} \

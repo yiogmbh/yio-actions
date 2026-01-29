@@ -33,7 +33,6 @@ runs:
       if: ${{ inputs.dry_run == 'true' }}
       shell: bash
       run: |
-        echo " --- DRY RUN ONLY --- value( ${{ inputs.dry_run }} ) condition( ${{ inputs.dry_run == 'true'}} )"
         uv publish \
           --publish-url ${{ inputs.upload_url }} \
           --check-url ${{ inputs.registry_url }} \
@@ -45,7 +44,6 @@ runs:
       if: ${{ inputs.dry_run != 'true' }}
       shell: bash
       run: |
-        echo " --- Real RUN --- value( ${{ inputs.dry_run }} ) condition( ${{ inputs.dry_run == 'true'}} )"
         uv publish \
           --publish-url ${{ inputs.upload_url }} \
           --check-url ${{ inputs.registry_url }} \

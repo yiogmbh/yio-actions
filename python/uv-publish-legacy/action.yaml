@@ -39,7 +39,6 @@ runs:
         
         echo "🔑 Successfully logged into ${{ inputs.login_url}} (as ${{ inputs.registry_username }})."
         
-        echo " --- DRY RUN ONLY ---"
         uv publish \
           --publish-url ${{ inputs.upload_url }} \
           --check-url ${{ inputs.registry_url }} \

@@ -32,6 +32,10 @@ inputs:
     description: "Is the version a release version?"
     required: false
     default: "false"
+  dist_files:
+    description: "Distribution files to upload (e.g. 'dist/*')"
+    required: false
+    default: ""
 
 runs:
   using: 'composite'
@@ -44,3 +48,4 @@ runs:
         tag_name: ${{ inputs.tag }}
         target_commitish: ${{ inputs.commit_sha }}
         prerelease: ${{ inputs.is_prerelease }}
+        files: ${{ inputs.dist_files }}

@@ -13,14 +13,37 @@ inputs:
   registry_password:
     description: "Password for image registry"
     required: true
+  legacy:
+    description: "Perform legacy login (obtain token from registry first)"
+    required: false
+    default: "false"
+    type: "boolean"
 
 runs:
   using: 'composite'
   steps:
     - name: Login to ${{ inputs.registry_url }}
       id: login
-      run: |        
+      if: ${{ inputs.legacy != 'true' }}
+      run: |
+        service_url=$(uvx python -c "from urllib.parse import urlparse; import sys; print(urlparse(\"${{ inputs.registry_url }}\").netloc)")
+        
         echo "${{ inputs.registry_password }}" \
-          | uv auth login "${{ inputs.registry_url }}" --username ${{ inputs.registry_username }} --password - 
+          | uv auth login "${service_url}" --username ${{ inputs.registry_username }} --password - 
 
-    - run: echo "🔑 Successfully logged into ${{ inputs.registry_url}} (as ${{ inputs.registry_username }})."
+    - run: echo "🔑 Successfully logged into ${service_url} (as ${{ inputs.registry_username }})."
+
+    - name: Login to ${{ inputs.registry_url }} (legacy)
+      id: login_legacy
+      if: ${{ inputs.dry_run == 'true' }}
+      run: |
+        service_url=$(uvx python -c "from urllib.parse import urlparse; import sys; print(urlparse(\"${{ inputs.registry_url }}\").netloc)")
+        login_url=$(uvx python -c "from urllib.parse import urlparse; url = urlparse(\"${{ inputs.registry_url }}\"); print(url._replace(path='/login').geturl())")
+        
+        token_line=$(uvx --with requests python -c "import requests, sys; print(requests.post(\"${login_url}\", headers={'Content-Type': 'application/x-www-form-urlencoded'}, data={'username': sys.argv[1], 'password': sys.argv[2]}).text})" "${{ secrets.AT_YIO_PYPI_USERNAME }}" "${{ secrets.AT_YIO_PYPI_PASSWORD }}" | grep 'extra-index-url = .*')
+        registry_password=$(uvx python -c "from urllib.parse import urlparse; print(urlparse(\"${token_line}\".removeprefix('extra-index-url = ')).password)")
+
+        echo "${registry_password}" \
+          | uv auth login "${service_url}" --username ${{ inputs.registry_username }} --password - 
+        
+        echo "🔑 Successfully logged into ${service_url} (as ${{ inputs.registry_username }})."

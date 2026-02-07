@@ -1,0 +1,35 @@
+name: Login to pypi registry
+description: Logs in into some registry
+# Schema: https://json.schemastore.org/github-action.json
+
+inputs:
+  # Define the required input parameters for the action
+  registry_url:
+    description: "URL for image registry"
+    required: true
+  registry_username:
+    description: "Username for image registry"
+    required: true
+  registry_password:
+    description: "Password for image registry"
+    required: true
+  legacy:
+    description: "Perform legacy login (obtain token from registry first)"
+    required: false
+    default: "false"
+    type: "boolean"
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Login to registry
+      id: login
+      if: ${{ inputs.legacy != 'true' }}
+      run: |
+        echo "hello no legacy"
+
+    - name: Login to registry (legacy)
+      id: login_legacy
+      if: ${{ inputs.dry_run == 'true' }}
+      run: |
+        echo "hello"

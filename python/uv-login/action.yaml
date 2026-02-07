@@ -37,8 +37,14 @@ runs:
         service_url=$(uvx python -c "from urllib.parse import urlparse; import sys; print(urlparse(\"${{ inputs.registry_url }}\").netloc)")
         login_url=$(uvx python -c   "from urllib.parse import urlparse; url = urlparse(\"${{ inputs.registry_url }}\"); print(url._replace(path='/login').geturl())")
         
+        echo "detected service url: ${service_url}"
+        echo "detected login url: ${login_url}"
+        
         token_line=$(uvx --with requests python -c "import requests, sys; print(requests.post(\"${login_url}\", headers={'Content-Type': 'application/x-www-form-urlencoded'}, data={'username': sys.argv[1], 'password': sys.argv[2]}).text)" "${{ secrets.AT_YIO_PYPI_USERNAME }}" "${{ secrets.AT_YIO_PYPI_PASSWORD }}" | grep 'extra-index-url = .*')
         registry_password=$(uvx python -c "from urllib.parse import urlparse; print(urlparse(\"${token_line}\".removeprefix('extra-index-url = ')).password)")
+
+        echo "some token Line: ${token_line}"
+        echo "my pass: ${registry_password}"
 
         echo "${registry_password}" | uv auth login "${service_url}" --username ${{ inputs.registry_username }} --password - 
         

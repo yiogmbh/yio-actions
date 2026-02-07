@@ -8,18 +8,26 @@ inputs:
     description: "Distribution files to upload (e.g. 'dist/*')"
     required: true
     default: "dist/*"
+  index:
+    description: "Use a uv defined index to publish"
+    required: false
+    default: ""
   upload_url:
     description: "URL for the upload server"
-    required: true
+    required: false
+    default: ""
   registry_url:
     description: "URL for the registry to upload to"
-    required: true
+    required: false
+    default: ""
   registry_username:
     description: "Username for the registry to upload to"
-    required: true
+    required: false
+    default: ""
   registry_password:
     description: "Password for the registry to upload to"
-    required: true
+    required: false
+    default: ""
   dry_run:
     description: "If true, perform a dry run without actually uploading"
     required: false
@@ -29,16 +37,17 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: upload (dry run)
+    - name: upload${{ case(inputs.dry_run == 'true', '(dry run)', '') }}
       if: ${{ inputs.dry_run == 'true' }}
       shell: bash
       run: |
         uv publish \
-          --publish-url ${{ inputs.upload_url }} \
-          --check-url ${{ inputs.registry_url }} \
-          --username ${{ inputs.registry_username }} \
-          --password ${{ inputs.registry_password }} \
-          --dry-run \
+          ${{ case(inputs.index != '', format('--index {0}', inputs.index), '') }} \
+          ${{ case(inputs.upload_url != '', format('--publish-url {0}', inputs.upload_url, '')) }} \
+          ${{ case(inputs.registry_url != '', format('--check-url {0}', inputs.registry_url, '')) }} \
+          ${{ case(inputs.registry_username != '', format('--username {0}', inputs.registry_username, ''))}} \
+          ${{ case(inputs.registry_password != '', format('--password {0}', inputs.registry_password, ''))}} \
+          ${{ case(inputs.dry_run == 'true', '--dry-run', '') }} \
           ${{ inputs.dist_files }}
     - name: upload
       if: ${{ inputs.dry_run != 'true' }}

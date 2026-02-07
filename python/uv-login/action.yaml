@@ -27,3 +27,23 @@ runs:
       if: ${{ inputs.legacy != 'true' }}
       run: |
         echo "hello no legacy"
+        service_url=$(uvx python -c "from urllib.parse import urlparse; import sys; print(urlparse(\"${{ inputs.registry_url }}\").netloc)")
+        
+        echo "${{ inputs.registry_password }}" | uv auth login "${service_url}" --username ${{ inputs.registry_username }} --password -
+
+    - run: echo "🔑 Successfully logged into ${service_url} (as ${{ inputs.registry_username }})."
+
+    - name: Login to registry (legacy)
+      id: login_legacy
+      if: ${{ inputs.dry_run == 'true' }}
+      run: |
+        echo "hello"
+        service_url=$(uvx python -c "from urllib.parse import urlparse; import sys; print(urlparse(\"${{ inputs.registry_url }}\").netloc)")
+        login_url=$(uvx python -c   "from urllib.parse import urlparse; url = urlparse(\"${{ inputs.registry_url }}\"); print(url._replace(path='/login').geturl())")
+        
+        token_line=$(uvx --with requests python -c "import requests, sys; print(requests.post(\"${login_url}\", headers={'Content-Type': 'application/x-www-form-urlencoded'}, data={'username': sys.argv[1], 'password': sys.argv[2]}).text)" "${{ secrets.AT_YIO_PYPI_USERNAME }}" "${{ secrets.AT_YIO_PYPI_PASSWORD }}" | grep 'extra-index-url = .*')
+        registry_password=$(uvx python -c "from urllib.parse import urlparse; print(urlparse(\"${token_line}\".removeprefix('extra-index-url = ')).password)")
+
+        echo "${registry_password}" | uv auth login "${service_url}" --username ${{ inputs.registry_username }} --password - 
+        
+        echo "🔑 Successfully logged into ${service_url} (as ${{ inputs.registry_username }})."

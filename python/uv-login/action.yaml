@@ -35,7 +35,7 @@ runs:
 
     - name: Login to registry (legacy)
       id: login_legacy
-      if: ${{ inputs.dry_run == 'true' }}
+      if: ${{ inputs.legacy == 'true' }}
       run: |
         echo "hello"
         service_url=$(uvx python -c "from urllib.parse import urlparse; import sys; print(urlparse(\"${{ inputs.registry_url }}\").netloc)")

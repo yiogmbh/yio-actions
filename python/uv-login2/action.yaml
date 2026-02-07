@@ -30,6 +30,6 @@ runs:
 
     - name: Login to registry (legacy)
       id: login_legacy
-      if: ${{ inputs.dry_run == 'true' }}
+      if: ${{ inputs.legacy == 'true' }}
       run: |
         echo "hello"

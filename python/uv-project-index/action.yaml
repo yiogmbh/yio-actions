@@ -27,12 +27,3 @@ runs:
         echo "stripped uv.toml"
         cat $TMP
         echo "---------------"
-        
-        # append pyproject indices to the end of TMP file
-        cat "${PYPROJECT_TOML}" | yq -p toml -o json '.tool.uv' | jq '{index} | .index |= map(del(.explicit))' | yj -jt >> "${TMP}"
-
-        echo "added indices"
-        cat $TMP
-        echo "---------------"        
-
-        mv "${TMP}" "${UV_TOML}"

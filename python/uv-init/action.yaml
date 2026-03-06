@@ -1,0 +1,24 @@
+name: Initialize uv
+description: Provides user uv.toml with default registry
+# Schema: https://json.schemastore.org/github-action.json
+
+inputs:
+  # Define the required input parameters for the action
+  default_registry_name:
+    description: "Name for the default registry"
+    default: "pypi"
+    required: false
+  default_registry_url:
+    description: "URL for default registry"
+    required: false
+    default: 'https://pypi.org/simple'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Create uv.toml
+      shell: bash
+      run: |
+        mkdir -p "$HOME/.config/uv"
+        echo '{"index": [{"url": "${{ inputs.default_registry_url }}", "name": "${{ inputs.default_registry_name }}", "default": true}]}' \
+          | dasel -r json -w toml > $HOME/.config/uv/uv.toml

@@ -1,0 +1,38 @@
+name: Initialize uv
+description: Provides user uv.toml with default registry
+# Schema: https://json.schemastore.org/github-action.json
+
+inputs:
+  # Define the required input parameters for the action
+  registry_name:
+    description: "Name for the default registry"
+    default: "pypi"
+    required: false
+  registry_url:
+    description: "URL for default registry"
+    required: false
+    default: 'https://pypi.org/simple'
+  registry_explicit:
+    description: "Defines whether this registry needs explicit reference"
+    required: false
+    default: 'false'
+    type: 'boolean'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Add to uv.toml
+      shell: bash
+      run: |
+        UV_TOML="$HOME/.config/uv/uv.toml"
+
+        if [ ! -f "$UV_TOML" ]; then
+          echo "Error: $UV_TOML does not exist"
+          exit 1
+        fi
+
+        INDEX_COUNT=$(dasel -f "$UV_TOML" -r toml 'index.#' 2>/dev/null || echo "0")
+
+        dasel put -f "$UV_TOML" -r toml -t string -v "${{ inputs.registry_url }}" "index.[$INDEX_COUNT].url"
+        dasel put -f "$UV_TOML" -r toml -t string -v "${{ inputs.registry_name }}" "index.[$INDEX_COUNT].name"
+        dasel put -f "$UV_TOML" -r toml -t bool -v "${{ inputs.registry_explicit }}" "index.[$INDEX_COUNT].explicit"

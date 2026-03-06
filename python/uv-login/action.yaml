@@ -24,6 +24,7 @@ runs:
   steps:
     - name: Login to registry
       if: ${{ inputs.legacy != 'true' }}
+      shell: bash
       run: |
         service_url=$(uvx python -c "from urllib.parse import urlparse; import sys; print(urlparse(\"${{ inputs.registry_url }}\").netloc)")
         
@@ -33,6 +34,7 @@ runs:
 
     - name: Login to registry (legacy)
       if: ${{ inputs.legacy == 'true' }}
+      shell: bash
       run: |
         service_url=$(uvx python -c "from urllib.parse import urlparse; import sys; print(urlparse(\"${{ inputs.registry_url }}\").netloc)")
         login_url=$(uvx python -c   "from urllib.parse import urlparse; url = urlparse(\"${{ inputs.registry_url }}\"); print(url._replace(path='/login').geturl())")

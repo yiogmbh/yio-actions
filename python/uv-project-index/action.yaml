@@ -1,4 +1,4 @@
-name: Add project indices to uv.toml
+name: Move project indices to uv.toml
 description: Reads all indices defined within your pyproject.toml and replaces the uv.toml ones
 # Schema: https://json.schemastore.org/github-action.json
 
@@ -8,10 +8,6 @@ inputs:
     default: './pyproject.toml'
     required: false
     description: 'Path to pyproject.toml to use'
-  replace:
-    default: 'true'
-    required: false
-    description: 'Wether to replace existing uv.toml indices (default: true)'
 
 runs:
   using: 'composite'
@@ -19,15 +15,24 @@ runs:
     - name: Add or replace to uv.toml
       shell: bash
       run: |
-        
         UV_TOML="$HOME/.config/uv/uv.toml"
         PYPROJECT_TOML="${{ inputs.pyproject_toml_file }}"
   
         TMP="$(mktemp fileName.XXXXXXXX)"
         
-        cat "${UV_TOML}" | yq -p toml 'del(.index)' > "${TMP}"
+        echo "using ${TMP} file for mods"
+        
+        cat "${UV_TOML}" 2>/dev/null | yq -p toml 'del(.index)' > "${TMP}"
+        
+        echo "stripped uv.toml"
+        cat $TMP
+        echo "---------------"
         
         # append pyproject indices to the end of TMP file
         cat "${PYPROJECT_TOML}" | yq -p toml -o json '.tool.uv' | jq '{index} | .index |= map(del(.explicit))' | yj -jt >> "${TMP}"
+
+        echo "added indices"
+        cat $TMP
+        echo "---------------"        
 
         mv "${TMP}" "${UV_TOML}"

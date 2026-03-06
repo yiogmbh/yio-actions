@@ -24,3 +24,4 @@ runs:
           | yq -p json -o yaml > $HOME/.config/uv/uv.toml
         
         echo "Created uv.toml with ${{ inputs.default_registry_name }}<${{ inputs.default_registry_url }}> as default registry"
+        cat $HOME/.config/uv/uv.toml

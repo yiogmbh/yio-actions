@@ -20,7 +20,7 @@ runs:
       shell: bash
       run: |
         mkdir -p "$HOME/.config/uv"
-        echo '{"index": [{"url": "${{ inputs.default_registry_url }}", "name": "${{ inputs.default_registry_name }}", "default": true}]}' \
+        echo '{"index": [{"url": "${{ inputs.default_registry_url }}", "name": "${{ inputs.default_registry_name }}"}]}' \
           | yj -jt > $HOME/.config/uv/uv.toml
         
         echo "Created uv.toml with ${{ inputs.default_registry_name }}<${{ inputs.default_registry_url }}> as default registry"

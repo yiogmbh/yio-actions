@@ -21,4 +21,4 @@ runs:
       run: |
         mkdir -p "$HOME/.config/uv"
         echo '{"index": [{"url": "${{ inputs.default_registry_url }}", "name": "${{ inputs.default_registry_name }}", "default": true}]}' \
-          | dasel -r json -w toml > $HOME/.config/uv/uv.toml
+          | yq -p json -o yaml > $HOME/.config/uv/uv.toml

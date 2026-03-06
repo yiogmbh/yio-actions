@@ -15,15 +15,4 @@ runs:
     - name: Add or replace to uv.toml
       shell: bash
       run: |
-        UV_TOML="$HOME/.config/uv/uv.toml"
-        PYPROJECT_TOML="${{ inputs.pyproject_toml_file }}"
-  
-        TMP="$(mktemp fileName.XXXXXXXX)"
-        
-        echo "using ${TMP} file for mods"
-        
-        cat "${UV_TOML}" 2>/dev/null | yq -p toml 'del(.index)' > "${TMP}"
-        
-        echo "stripped uv.toml"
-        cat $TMP
-        echo "---------------"
+        echo "nix"

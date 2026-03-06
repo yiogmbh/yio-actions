@@ -15,19 +15,23 @@ runs:
     - name: Add or replace to uv.toml
       shell: bash
       run: |
-        UV_TOML="$HOME/.config/uv/uv.toml"
+        UV_TOML=$HOME/.config/uv/uv.toml
         PYPROJECT_TOML="${{ inputs.pyproject_toml_file }}"
   
         TMP="$(mktemp fileName.XXXXXXXX)"
         
         echo "using ${TMP} file for mods"
         
-        cat "${UV_TOML}" 2>/dev/null | yq -p toml 'del(.index)' > "${TMP}"
-        
+        cat ${UV_TOML} 2>/dev/null | yq -p toml 'del(.index)' > ${TMP}
+        echo "filter in uv toml"
+        cat ${UV_TOML} 2>/dev/null | yq -p toml 'del(.index)'
+            
         # append pyproject indices to the end of TMP file
-        cat "${PYPROJECT_TOML}" | yq -p toml -o json '.tool.uv' | jq '{index} | .index |= map(del(.explicit))' | yj -jt >> "${TMP}"
+        cat ${PYPROJECT_TOML} | yq -p toml -o json '.tool.uv' | jq '{index} | .index |= map(del(.explicit))' | yj -jt >> ${TMP}
+        echo "get indices ffrom pyproject"
+        cat ${PYPROJECT_TOML} | yq -p toml -o json '.tool.uv' | jq '{index} | .index |= map(del(.explicit))' | yj -jt
 
-        mv "${TMP}" "${UV_TOML}"
 
+        mv ${TMP} ${UV_TOML}
         echo "Successfully added project indices to uv.toml"
-        cat "${UV_TOM}"
+        cat ${UV_TOML}

@@ -15,6 +15,12 @@ runs:
     - name: Add or replace to uv.toml
       shell: bash
       run: |
+        
+        ls -alh $HOME/.config/uv
+        
+        ls -alh ./
+        exit 1
+        
         UV_TOML=$HOME/.config/uv/uv.toml
         PYPROJECT_TOML="${{ inputs.pyproject_toml_file }}"
   

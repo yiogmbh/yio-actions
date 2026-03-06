@@ -29,5 +29,6 @@ runs:
           | yj -jt >> $TMP
         
         mv $TMP $HOME/.config/uv/uv.toml
+        cat $HOME/.config/uv/uv.toml > /etc/uv/uv.toml
         echo "Successfully added project indices to uv.toml"
         cat $HOME/.config/uv/uv.toml

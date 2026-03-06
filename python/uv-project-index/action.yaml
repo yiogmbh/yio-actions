@@ -15,4 +15,19 @@ runs:
     - name: Add or replace to uv.toml
       shell: bash
       run: |
-        echo "nix"
+        UV_TOML="$HOME/.config/uv/uv.toml"
+        PYPROJECT_TOML="${{ inputs.pyproject_toml_file }}"
+  
+        TMP="$(mktemp fileName.XXXXXXXX)"
+        
+        echo "using ${TMP} file for mods"
+        
+        cat "${UV_TOML}" 2>/dev/null | yq -p toml 'del(.index)' > "${TMP}"
+        
+        # append pyproject indices to the end of TMP file
+        cat "${PYPROJECT_TOML}" | yq -p toml -o json '.tool.uv' | jq '{index} | .index |= map(del(.explicit))' | yj -jt >> "${TMP}"
+
+        mv "${TMP}" "${UV_TOML}"
+
+        echo "Successfully added project indices to uv.toml"
+        cat "${UV_TOM}"

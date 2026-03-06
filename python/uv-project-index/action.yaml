@@ -20,7 +20,7 @@ runs:
         echo "using $TMP file for mods"
         
         cat $HOME/.config/uv/uv.toml 2>/dev/null \
-          | yq -p toml 'del(.index)' > $TMP
+          | yq -p toml 'del(.index)' | yj -yt > $TMP
             
         # append pyproject indices to the end of TMP file
         cat "${{ inputs.pyproject_toml_file }}" \
